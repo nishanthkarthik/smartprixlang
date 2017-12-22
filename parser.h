@@ -1,7 +1,11 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <algorithm>
+#include <cstdlib>
 #include <iostream>
+#include <locale>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -20,38 +24,48 @@ enum Keyword {
     ENDIF
 };
 
-class Expr {
-    int nargs;
-    vector<string> args;
+enum Termtype {
+    TT_VARIABLE,
+    TT_VALUE,
+    TT_RELOP,
+    TT_UNDEF
+};
+
+class Term {
+    double value;
+    string name;
+    Termtype type;
 
 public:
-    Expr(int n, vector<string>& v)
-        : nargs(n)
-        , args(v)
-    {
-    }
+    Term(string& nm);
+    friend ostream& operator<<(ostream& os, const Term& r);
+    Termtype get_type();
+    double get_value();
+    string get_name();
+};
+
+class Instruction {
+    string cmd;
+    vector<Term> args;
+
+public:
+    Instruction(string& c, vector<Term>& v);
+    friend ostream& operator<<(ostream& os, const Instruction& r);
+    string get_cmd() const;
+    vector<Term> get_args() const;
 };
 
 class Parser {
-    istream* inst;
-    ostream* outst;
-    vector<Expr> code;
+    istream* instr;
+    vector<Instruction> code;
 
 public:
-    Parser(istream* i, ostream* o)
-        : inst(i)
-        , outst(o)
+    Parser(istream* i)
+        : instr(i)
     {
     }
 
-    void parse();
-    void parse_echo();
-    void parse_set();
-    void parse_op();
-    void parse_goto();
-    void parse_label();
-    void parse_cond();
-    void parse_exit();
+    vector<Instruction> parse();
 };
 
 #endif // PARSER_H

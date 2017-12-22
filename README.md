@@ -10,6 +10,6 @@ Smartprix lang to C transpiler
 - div a b c
 - goto l
 - label l
-- if cond
+- if a .rel. b
 - endif
 - exit
