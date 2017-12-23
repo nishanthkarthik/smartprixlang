@@ -59,7 +59,7 @@ void Transpiler::transpile_c()
 {
     emit("#include <stdlib.h>");
     emit("#include <stdio.h>");
-    emit("void main() {");
+    emit("int main() {");
     unordered_set<string> varnames = get_varnames();
     for (auto it = varnames.begin(); it != varnames.end(); ++it)
         emit("double " + *it + ";");
@@ -70,6 +70,7 @@ void Transpiler::transpile_c()
             (this->*m)(i);
         }
     }
+    emit("return 0;");
     emit("}");
 }
 
