@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -O3 -Wall -std=c++11
+CFLAGS = -O -Wall -std=c++11
 # CFLAGS += `llvm-config --cxxflags`
 
 SRC = $(wildcard *.cpp)

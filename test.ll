@@ -39,7 +39,13 @@ define i32 @main() #0 {
   br label %5
 
 ; <label>:11:                                     ; preds = %5
-  ret i32 0
+  br label %12
+
+; <label>:12:                                     ; preds = %12, %11
+  br label %12
+                                                  ; No predecessors!
+  %14 = load i32, i32* %1, align 4
+  ret i32 %14
 }
 
 declare i32 @printf(i8*, ...) #1

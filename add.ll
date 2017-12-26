@@ -1,7 +1,5 @@
 target triple = "x86_64-unknown-linux-gnu"
-
 declare i32 @printf(i8*, ...)
-
 @str = private unnamed_addr constant [4 x i8] c"%d\0A\00"
 
 define i32 @xadd (i32, i32) {

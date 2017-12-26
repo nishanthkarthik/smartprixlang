@@ -24,7 +24,7 @@ void Transpiler::transpile_c()
     emit("#include <stdio.h>");
     emit("int main() {");
     for (auto it = varnames.begin(); it != varnames.end(); ++it)
-        emit("double " + *it + ";");
+        emit("int " + *it + ";");
     for (Instruction& i : insvec) {
         string cmd = i.get_cmd();
         if (c_map.find(cmd) != c_map.end()) {
@@ -48,51 +48,45 @@ void Transpiler::transpile_c_endif(Instruction& i)
 
 void Transpiler::transpile_c_echo(Instruction& i)
 {
-    emit("printf(\"%g\\n\", " + i.get_args().front().get_name() + ");");
+    emit("printf(\"%g\\n\", " + i.arg_at(0).get_name() + ");");
 }
 
 void Transpiler::transpile_c_goto(Instruction& i)
 {
-    emit("goto " + i.get_args().front().get_name() + ";");
+    emit("goto " + i.arg_at(0).get_name() + ";");
 }
 
 void Transpiler::transpile_c_label(Instruction& i)
 {
-    emit(i.get_args().front().get_name() + ":");
+    emit(i.arg_at(0).get_name() + ":");
 }
 
 void Transpiler::transpile_c_set(Instruction& i)
 {
-    auto args = i.get_args();
-    emit(args[0].get_name() + " = " + args[1].get_name() + ";");
+    emit(i.arg_at(0).get_name() + " = " + i.arg_at(1).get_name() + ";");
 }
 
 void Transpiler::transpile_c_add(Instruction& i)
 {
-    auto args = i.get_args();
-    emit(args[0].get_name() + " = " + args[1].get_name() + " + " + args[2].get_name() + ";");
+    emit(i.arg_at(0).get_name() + " = " + i.arg_at(1).get_name() + " + " + i.arg_at(2).get_name() + ";");
 }
 
 void Transpiler::transpile_c_sub(Instruction& i)
 {
-    auto args = i.get_args();
-    emit(args[0].get_name() + " = " + args[1].get_name() + " - " + args[2].get_name() + ";");
+    emit(i.arg_at(0).get_name() + " = " + i.arg_at(1).get_name() + " - " + i.arg_at(2).get_name() + ";");
 }
 
 void Transpiler::transpile_c_mul(Instruction& i)
 {
-    auto args = i.get_args();
-    emit(args[0].get_name() + " = " + args[1].get_name() + " * " + args[2].get_name() + ";");
+    emit(i.arg_at(0).get_name() + " = " + i.arg_at(1).get_name() + " * " + i.arg_at(2).get_name() + ";");
 }
 
 void Transpiler::transpile_c_div(Instruction& i)
 {
-    auto args = i.get_args();
-    emit(args[0].get_name() + " = " + args[1].get_name() + " / " + args[2].get_name() + ";");
+    emit(i.arg_at(0).get_name() + " = " + i.arg_at(1).get_name() + " / " + i.arg_at(2).get_name() + ";");
 }
 
 void Transpiler::transpile_c_if(Instruction& i)
 {
-    auto args = i.get_args();
-    emit("if (" + args[0].get_name() + args[1].get_name() + args[2].get_name() + ") {");
+    emit("if (" + i.arg_at(0).get_name() + i.arg_at(1).get_name() + i.arg_at(2).get_name() + ") {");
 }

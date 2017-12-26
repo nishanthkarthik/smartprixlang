@@ -32,7 +32,7 @@ enum Termtype {
 };
 
 class Term {
-    double value;
+    int value;
     string name;
     Termtype type;
 
@@ -40,7 +40,7 @@ public:
     Term(string& nm);
     friend ostream& operator<<(ostream& os, const Term& r);
     Termtype get_type();
-    double get_value();
+    int get_value();
     string get_name();
 };
 
@@ -53,6 +53,7 @@ public:
     friend ostream& operator<<(ostream& os, const Instruction& r);
     string get_cmd() const;
     vector<Term> get_args() const;
+    Term arg_at(int i) const;
 };
 
 class Parser {

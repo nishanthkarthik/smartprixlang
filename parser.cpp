@@ -13,7 +13,7 @@ Term::Term(string& nm)
         return;
     }
     char* err;
-    value = strtod(nm.c_str(), &err);
+    value = (int)strtod(nm.c_str(), &err);
     type = (*err == 0) ? TT_VALUE : TT_VARIABLE;
 }
 
@@ -40,7 +40,7 @@ Termtype Term::get_type()
     return type;
 }
 
-double Term::get_value()
+int Term::get_value()
 {
     return value;
 }
@@ -73,6 +73,8 @@ vector<Instruction> Parser::parse()
         stringstream ss(line);
         string cmdstr;
         ss >> cmdstr;
+        if (cmdstr.empty() or cmdstr.front() == ';')
+            continue;
         string term;
         vector<Term> termvec;
         do {
@@ -94,4 +96,9 @@ string Instruction::get_cmd() const
 vector<Term> Instruction::get_args() const
 {
     return args;
+}
+
+Term Instruction::arg_at(int i) const
+{
+    return args.at(i);
 }
