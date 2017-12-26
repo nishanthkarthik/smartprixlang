@@ -102,3 +102,13 @@ Term Instruction::arg_at(int i) const
 {
     return args.at(i);
 }
+
+string Instruction::name_at(int i)
+{
+    return args.at(i).get_name();
+}
+
+int Instruction::val_at(int i)
+{
+    return args.at(i).get_value();
+}

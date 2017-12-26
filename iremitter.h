@@ -3,18 +3,21 @@
 
 #include "emitter.h"
 
+#include <stack>
 #include <unordered_map>
 
 class IREmitter : public Emitter {
     typedef void (IREmitter::*memfuncptr)(Instruction i);
     unordered_map<string, int> registers;
-    int regcnt;
+    int regcnt, condcnt;
     unordered_map<string, memfuncptr> ir_fmap;
+    stack<int> condstack;
 
 public:
     IREmitter(ostream* o, vector<Instruction>& ins);
 
     void echo(const string s);
+    inline string regtypetos(Term t);
 
     void ir_emit();
 

@@ -54,6 +54,9 @@ public:
     string get_cmd() const;
     vector<Term> get_args() const;
     Term arg_at(int i) const;
+
+    string name_at(int i);
+    int val_at(int i);
 };
 
 class Parser {

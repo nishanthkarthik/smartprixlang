@@ -1,15 +1,35 @@
 #include "iremitter.h"
-#include "parser.h"
 
 inline string regtos(int regidx)
 {
     return "%" + to_string(regidx);
 }
 
+inline string iftos(int i, string key, bool islbl)
+{
+    return string(islbl ? "%" : "") + key + to_string(i);
+}
+
+inline string IREmitter::regtypetos(Term t)
+{
+    string res;
+    switch (t.get_type()) {
+    case TT_VALUE:
+        res = to_string(t.get_value());
+        break;
+    case TT_VARIABLE:
+        res = regtos(registers[t.get_name()]);
+        break;
+    default:
+        break;
+    }
+    return res;
+}
+
 IREmitter::IREmitter(ostream* o, vector<Instruction>& ins)
     : Emitter(o, ins)
 {
-    regcnt = 1;
+    condcnt = regcnt = 1;
     ir_fmap.emplace("EXIT", &IREmitter::ir_exit);
     ir_fmap.emplace("ENDIF", &IREmitter::ir_endif);
     ir_fmap.emplace("ECHO", &IREmitter::ir_echo);
@@ -72,6 +92,14 @@ void IREmitter::ir_exit(Instruction i)
 
 void IREmitter::ir_endif(Instruction i)
 {
+    int cond_idx = condstack.top();
+    condstack.pop();
+    string elselabel = iftos(cond_idx, "end", false);
+    string endlabel = iftos(cond_idx, "ret", false);
+    echo("br label %" + endlabel);
+    echo(elselabel + ":");
+    echo("br label %" + endlabel);
+    echo(endlabel + ":");
 }
 
 void IREmitter::ir_echo(Instruction i)
@@ -79,30 +107,29 @@ void IREmitter::ir_echo(Instruction i)
     regcnt++;
     emit("call i32 (i8*, ...) @printf(i8* getelementptr inbounds "
          "([4 x i8], [4 x i8]* @decstr, i32 0, i32 0), i32 "
-        + regtos(registers[i.arg_at(0).get_name()]) + ")");
+        + regtos(registers[i.name_at(0)]) + ")");
 }
 
 void IREmitter::ir_goto(Instruction i)
 {
-    emit("br label %" + i.arg_at(0).get_name());
+    emit("br label %" + i.name_at(0));
 }
 
 void IREmitter::ir_label(Instruction i)
 {
-    emit("br label %" + i.arg_at(0).get_name());
-    emit(i.arg_at(0).get_name() + ":");
+    emit("br label %" + i.name_at(0));
+    emit(i.name_at(0) + ":");
 }
 
 void IREmitter::ir_set(Instruction i)
 {
-    if (registers.find(i.arg_at(0).get_name()) == registers.end())
-        registers[i.arg_at(0).get_name()] = regcnt++;
+    registers[i.name_at(0)] = regcnt++;
     switch (i.arg_at(1).get_type()) {
     case TT_VARIABLE:
-        echo(regtos(registers[i.arg_at(0).get_name()]) + " = add i32 0, " + regtos(registers[i.arg_at(1).get_name()]));
+        echo(regtos(registers[i.name_at(0)]) + " = add i32 0, " + regtos(registers[i.name_at(1)]));
         break;
     case TT_VALUE:
-        echo(regtos(registers[i.arg_at(0).get_name()]) + " = add i32 0, " + to_string(i.arg_at(1).get_value()));
+        echo(regtos(registers[i.name_at(0)]) + " = add i32 0, " + to_string(i.val_at(1)));
         break;
     default:
         break;
@@ -113,30 +140,11 @@ void IREmitter::ir_binop(Instruction i, string opinst)
 {
     string rhs1, rhs2;
 
-    switch (i.arg_at(1).get_type()) {
-    case TT_VALUE:
-        rhs1 = to_string(i.arg_at(1).get_value());
-        break;
-    case TT_VARIABLE:
-        rhs1 = regtos(registers[i.arg_at(1).get_name()]);
-        break;
-    default:
-        break;
-    }
+    rhs1 = regtypetos(i.arg_at(1));
+    rhs2 = regtypetos(i.arg_at(2));
 
-    switch (i.arg_at(2).get_type()) {
-    case TT_VALUE:
-        rhs2 = to_string(i.arg_at(2).get_value());
-        break;
-    case TT_VARIABLE:
-        rhs2 = regtos(registers[i.arg_at(2).get_name()]);
-        break;
-    default:
-        break;
-    }
-
-    registers[i.arg_at(0).get_name()] = regcnt++;
-    string lhs = regtos(registers[i.arg_at(0).get_name()]);
+    registers[i.name_at(0)] = regcnt++;
+    string lhs = regtos(registers[i.name_at(0)]);
 
     echo(lhs + " = " + opinst + " i32 " + rhs1 + ", " + rhs2);
 }
@@ -163,4 +171,19 @@ void IREmitter::ir_div(Instruction i)
 
 void IREmitter::ir_if(Instruction i)
 {
+    static unordered_map<string, string> relmap = {
+        { "<", "slt" },
+        { ">", "sgt" },
+        { "=", "eq" },
+        { "~", "ne" }
+    };
+    string lhs = regtypetos(i.arg_at(0));
+    string rhs = regtypetos(i.arg_at(2));
+    string cndres = regtos(regcnt++);
+    echo(cndres + " = icmp " + relmap[i.name_at(1)] + " i32 " + lhs + ", " + rhs);
+    int cond_idx = condcnt++;
+    echo("br i1 " + cndres + ", label " + iftos(cond_idx, "beg", true)
+        + ", label " + iftos(cond_idx, "end", true));
+    condstack.push(cond_idx);
+    echo(iftos(cond_idx, "beg", false) + ":");
 }
