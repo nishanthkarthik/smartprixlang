@@ -8,7 +8,7 @@ Term::Term(string& nm)
         type = TT_UNDEF;
         return;
     }
-    if (nm == "<" or nm == ">" or nm == "=" or nm == "~") {
+    if (nm == "<" or nm == ">" or nm == "==" or nm == "!=") {
         type = TT_RELOP;
         return;
     }

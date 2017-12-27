@@ -8,7 +8,6 @@
 
 class IREmitter : public Emitter {
     typedef void (IREmitter::*memfuncptr)(Instruction i);
-    unordered_map<string, int> registers;
     int regcnt, condcnt;
     unordered_map<string, memfuncptr> ir_fmap;
     stack<int> condstack;
@@ -16,14 +15,12 @@ class IREmitter : public Emitter {
 public:
     IREmitter(ostream* o, vector<Instruction>& ins);
 
-    void echo(const string s);
-    inline string regtypetos(Term t);
-
     void ir_emit();
 
     void ir_setup();
     void ir_start_main();
     void ir_end_main();
+    void ir_var_alloc();
 
     void ir_exit(Instruction i);
     void ir_endif(Instruction i);

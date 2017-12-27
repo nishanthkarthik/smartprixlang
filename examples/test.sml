@@ -27,17 +27,17 @@ echo c
 
 ; test if
 set c 15
-if c = 15
+if c == 15
     echo a
 endif
 
 ; test loop
-;set c 0
-;label flag
-;if c < 5
-;    echo c
-;    add c 1 c
-;    goto flag
-;endif
+set c 0
+label flag
+if c < 5
+    echo c
+    add c 1 c
+    goto flag
+endif
 
 exit

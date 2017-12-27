@@ -23,19 +23,31 @@ define i32 @main() #0 {
   store i32 2, i32* %2, align 4
   %3 = load i32, i32* %2, align 4
   %4 = icmp sgt i32 %3, 0
-  br i1 %4, label %5, label %6
+  br i1 %4, label %5, label %12
 
 ; <label>:5:                                      ; preds = %0
-  store i32 5, i32* %2, align 4
-  br label %9
-
-; <label>:6:                                      ; preds = %0
+  %6 = load i32, i32* %2, align 4
   %7 = load i32, i32* %2, align 4
-  %8 = add nsw i32 %7, 10
-  store i32 %8, i32* %2, align 4
-  br label %9
+  %8 = call i32 @test(i32 %6, i32 %7)
+  store i32 5, i32* %2, align 4
+  %9 = load i32, i32* %2, align 4
+  %10 = load i32, i32* %2, align 4
+  %11 = call i32 @test(i32 %9, i32 %10)
+  br label %21
 
-; <label>:9:                                      ; preds = %6, %5
+; <label>:12:                                     ; preds = %0
+  %13 = load i32, i32* %2, align 4
+  %14 = load i32, i32* %2, align 4
+  %15 = call i32 @test(i32 %13, i32 %14)
+  %16 = load i32, i32* %2, align 4
+  %17 = add nsw i32 %16, 10
+  store i32 %17, i32* %2, align 4
+  %18 = load i32, i32* %2, align 4
+  %19 = load i32, i32* %2, align 4
+  %20 = call i32 @test(i32 %18, i32 %19)
+  br label %21
+
+; <label>:21:                                     ; preds = %12, %5
   ret i32 0
 }
 

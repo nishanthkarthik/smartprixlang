@@ -48,7 +48,7 @@ void Transpiler::transpile_c_endif(Instruction& i)
 
 void Transpiler::transpile_c_echo(Instruction& i)
 {
-    emit("printf(\"%g\\n\", " + i.arg_at(0).get_name() + ");");
+    emit("printf(\"%d\\n\", " + i.arg_at(0).get_name() + ");");
 }
 
 void Transpiler::transpile_c_goto(Instruction& i)
